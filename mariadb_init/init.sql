@@ -12,7 +12,7 @@ CREATE TABLE film(
     regista INT NOT NULL,
     anno INT NOT NULL check(anno>0),
     genere VARCHAR(100) NOT NULL,
-    piattaforma_1 VARCHAR(200) NOT NULL,
-    piattaforma_2 VARCHAR(200) NOT NULL,
+    piattaforma_1 VARCHAR(200),
+    piattaforma_2 VARCHAR(200),
     CONSTRAINT fk_film FOREIGN KEY(regista) REFERENCES registi(id_regista) ON DELETE CASCADE ON UPDATE RESTRICT
 );

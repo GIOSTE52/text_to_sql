@@ -10,7 +10,7 @@
             "port": 3307,
             "driver": "MariaDB",
             "name": "mariasb_esonero",
-            "database": "toy_store",
+            "database": "text_to_sql_DB",
             "username": "stefano"
         }
     ]
