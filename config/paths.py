@@ -17,8 +17,8 @@ INIT_SQL_DIR = ROOT_DIR/"mariadb_init"
 
 DATA_FILE = DATA_DIR/"data.tsv"
 QUESTIONS_FILE = DATA_DIR/"questions.txt"
-INIT_SQL = INIT_SQL_DIR/"init.sql"
-DELETE_SQL = INIT_SQL_DIR/"delete.sql"
+# INIT_SQL = INIT_SQL_DIR/"init.sql"
+# DELETE_SQL = INIT_SQL_DIR/"delete.sql"
 
 # Percorso ai test
 TESTS_DIR = ROOT_DIR/"tests"
@@ -32,7 +32,7 @@ DB_CONFIG = {
     "database": "text_to_sql_DB"
 }
 
-#Se eseguito singolarmente stampa i path per verificare che funzioni (FUNZIONA)
+#Stampa i path per verificare che funzioni (FUNZIONA)
 if __name__ == "__main__":
     print(f"Backend dir: {BACKEND_SRC_DIR}")
     print(f"Data file: {DATA_FILE}")

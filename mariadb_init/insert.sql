@@ -1,9 +1,10 @@
+
 INSERT INTO registi (nome_completo, eta)
 VALUES (
     'Christopher Nolan',
     54
 );
-INSERT INTO film (
+INSERT INTO movies (
     titolo,
     regista,
     anno,
@@ -20,7 +21,7 @@ VALUES (
     'NOW'
  );
 
-INSERT INTO film (
+INSERT INTO movies (
     titolo,
     regista,
     anno,
@@ -37,5 +38,11 @@ VALUES (
     'Amazon Prime Video'
 );
 
-DELETE FROM film;
 DELETE FROM registi;
+
+DROP DATABASE text_to_sql_DB;
+
+DELETE FROM movies;
+
+INSERT INTO movies(titolo, regista, eta_autore, anno, genere, piattaforma_1, piattaforma_2) VALUES
+("Inception", "Christopher Nolan", 54, 2010, "Fantascienza", "Amazon Prime Video", "NOW");
