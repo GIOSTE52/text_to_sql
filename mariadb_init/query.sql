@@ -46,3 +46,4 @@ DELETE FROM movies;
 
 INSERT INTO movies(titolo, regista, eta_autore, anno, genere, piattaforma_1, piattaforma_2) VALUES
 ("Inception", "Christopher Nolan", 54, 2010, "Fantascienza", "Amazon Prime Video", "NOW");
+
