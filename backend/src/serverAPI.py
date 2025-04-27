@@ -1,12 +1,12 @@
 from config.paths import DB_CONFIG
-from utils.parse_data import *
+from .utils.parse_data import *
 
 from fastapi import FastAPI, HTTPException, requests
 from pydantic import BaseModel
-from typing import List
+from typing import List, Dict, Optional
 import mariadb
     
-app = FastAPI(title="text_to_sql")
+app = FastAPI(title="text_to_sql Server REST")
 
 #Imposto il formato delle tabelle da restituire in output alla richiesta GET schema_summary
 class TableSchema(BaseModel):
@@ -24,38 +24,102 @@ class SelectResponse(BaseModel):
 class SearchResponse(BaseModel):
     result : List[SelectResponse]
 
-#Gestisco possibili errori durante la connessione al database
-try:
-    db_conn = mariadb.connect(**DB_CONFIG)
-except mariadb.Error as e:
-    print(f"Errore nella connessione al database: {e}")
-    exit(1)
+@app.get("/")
+def root()->None:
+    try:
+        db_conn = mariadb.connect(**DB_CONFIG)
+        with open(DATA_FILE, "r") as fd:
+            reader = csv.reader(fd, delimiter="\t")
+            next(reader)
+            for line in reader:
+                line = ",".join(line)
+                add_to_database(db_conn, line)
+
+        #Stampo l'headers e i valori presenti nella tabella
+        table_value = read_tables_values(db_conn, "movies")
+        headers = read_tables_headers(db_conn, "movies")
+        print("TABLE: movies")
+        print("Header:",headers)
+        print("Table_value:",table_value, sep="\n")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Errore, sintassi non valida: {e}")
+    except mariadb.Error as e:
+        raise HTTPException(status_code=500, detail=f"Errore durante la connesione al database: {e}")
+    finally:
+        db_conn.close()
     
-#Creo il cursore(punto di contatto) per gestire la connessione con il database
-db_cursor : mariadb.Cursor = db_conn.cursor()
+    return
 
 @app.get("/schema_summary")
-def get_schema_summary()->None:
+def get_schema_summary()->List[TableSchema]:
+    try:
+        db_conn = mariadb.connect(**DB_CONFIG)
+        db_cursor = db_conn.cursor()
 
-    result : List[TableSchema] = []
-    table = TableSchema(
+        db_cursor.execute("SELECT * FROM movies")
+        headers = []
+        for attribute in db_cursor.description:
+            headers.append(attribute[0])
         
-    )
+        schema = []
+        for col in headers:
+            schema.append({
+                "table_name": "movies",
+                "table_column": str(col)
+            })
+    except mariadb.Error as e:
+        raise HTTPException(status_code=500, detail=f"Errore durante l'operazione sul database: {e}")
+    # except Exception as e:
+    #     raise HTTPException(status_code=400, detail=f"Errore generico: {e}")
+    finally:
+        db_cursor.close()
+        db_conn.close()
+    return schema
 
-@app.get("/search", response = SearchResponse)
-def search(question : str):
-    parsed = parse_question(question)
-    for elem in parsed:
-        if elem.isdigit():
-            elem = int(elem)
-            
-    result : SearchResponse
+@app.get("/search{question}")
+def search(question : str)->SearchResponse:
+    try:
+        db_conn = mariadb.connect(**DB_CONFIG)
+        db_cursor = db_conn.cursor()
 
-    return
+        query = translate_to_query(question)
+        if query =="NON RICONOSCIUTA!":
+            raise HTTPException(status_code=400, detail="Non è possibile elaborare questa richiesta!" )
+        else:
+            db_cursor.execute(query)
+            result = db_cursor.fetchall()
+
+            print("Risultato della query: ",result)
+            ret = sql_to_json(result, read_tables_headers(db_conn, "movies"))
+            ret = SearchResponse(
+                result=ret
+                )
+    except mariadb.Error as e:
+        raise HTTPException(status_code=500, detail=f"Errore durante l'operazione sul database: {e}")
+    # except Exception as e:
+    #     raise HTTPException(status_code=400, detail=f"Errore generico: {e}")
+    finally:                
+        db_cursor.close()
+        db_conn.close()
+    return ret
 
 @app.post("/add")
-def add():
-    return
+def add(data_line : str)-> Dict[str,str]:
+    ret = {"status" : "ok"}
+    # data_line = parse_question(data_line)
+    db_conn = mariadb.connect(**DB_CONFIG)
+    try:
+        db_cursor = db_conn.cursor()
+        add_to_database(db_conn, data_line)
 
-#Chiusura della connessione
-db_cursor.close()
+    except ValueError as e:
+        ret = {"status" : "422"}
+        raise HTTPException(status_code=422, detail=f"Errore, linea di dati non valida")
+    except mariadb.Error as e:
+        ret = {"status" : "500"}
+        raise HTTPException(status_code=500, detail=f"Errore durante l'operazione sul database: {e}")
+    finally:
+        db_cursor.close()
+        db_conn.close()
+        return ret
+    
