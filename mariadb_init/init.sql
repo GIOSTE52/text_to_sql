@@ -18,7 +18,7 @@ USE text_to_sql_DB;
 -- );
 
 CREATE TABLE movies(
-    titolo VARCHAR(100) NOT NULL,
+    titolo VARCHAR(100),
     regista VARCHAR(200) NOT NULL,
     eta_autore INT NOT NULL,
     anno INT NOT NULL check(anno>0),
@@ -26,5 +26,5 @@ CREATE TABLE movies(
     piattaforma_1 VARCHAR(200),
     piattaforma_2 VARCHAR(200),
     UNIQUE(titolo),
-    PRIMARY KEY(titolo, regista)
+    PRIMARY KEY(regista, anno)
 );

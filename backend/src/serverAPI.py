@@ -25,7 +25,7 @@ class SearchResponse(BaseModel):
     result : List[SelectResponse]
 
 @app.get("/")
-def root()->None:
+def root()->List[List]:
     try:
         db_conn = mariadb.connect(**DB_CONFIG)
         with open(DATA_FILE, "r") as fd:
@@ -48,7 +48,7 @@ def root()->None:
     finally:
         db_conn.close()
     
-    return
+    return table_value
 
 @app.get("/schema_summary")
 def get_schema_summary()->List[TableSchema]:
@@ -76,8 +76,8 @@ def get_schema_summary()->List[TableSchema]:
         db_conn.close()
     return schema
 
-@app.get("/search{question}")
-def search(question : str)->SearchResponse:
+@app.get("/search/{question}")
+def search(question : str)->List:
     try:
         db_conn = mariadb.connect(**DB_CONFIG)
         db_cursor = db_conn.cursor()
@@ -101,7 +101,7 @@ def search(question : str)->SearchResponse:
     finally:                
         db_cursor.close()
         db_conn.close()
-    return ret
+    return ret.result
 
 @app.post("/add")
 def add(data_line : str)-> Dict[str,str]:

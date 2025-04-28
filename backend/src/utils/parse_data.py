@@ -137,23 +137,22 @@ def add_to_database(db_conn : mariadb.Connection, data_line:str)->None:
         #fetchone() ritorna None se non ci sono dati corrispondenti, altrimenti ritorna la singola tupla corrispondente al risultato della query effettuata
 
         if query_result is not None:
-            print(f"QUERY RESULT NOT NONE: {query_result}")
-            #Controllo se il regista sta cambiando durante l'add 
+            #Prima controllo se esistono film con lo stesso titolo e quindi aggiorno i vari campi con i nuovi valori inseriti
+            update_data = (director_name, director_age, film_year, film_genr, platform_1, platform_2)
+            db_cursor.execute(f"UPDATE movies SET regista = ?, eta_autore = ?, anno = ?, genere = ?, piattaforma_1 = ?, piattaforma_2 = ? WHERE titolo = '{film_title}'", update_data)
+            db_conn.commit()
+            #Controllo se il regista sta cambiando rispetto al film omonimo trovato 
             if query_result[1] != director_name:
-                print("ENTRO NELLA IF")
                 #Il regista cambia, quindi controllo se il vecchio regista ha solo un film
                 db_cursor.execute(f"SELECT count(*) FROM movies WHERE regista = '{query_result[1]}'")
                 num_film = db_cursor.fetchone()[0]
-                if num_film == 1:
+                if num_film > 1:
+                    print("Inserisco:")
                     insert_data = (None, query_result[1], query_result[2], query_result[3], query_result[4], query_result[5], query_result[6])
                     db_cursor.execute("INSERT INTO movies (titolo, regista, eta_autore, anno, genere, piattaforma_1, piattaforma_2) VALUES (?,?,?,?,?,?,?)", insert_data)
                     db_conn.commit()
 
 
-            #Prima controllo se esistono film con lo stesso titolo e quindi aggiorno i campi vari
-            update_data = (director_name, director_age, film_year, film_genr, platform_1, platform_2)
-            db_cursor.execute(f"UPDATE movies SET regista = ?, eta_autore = ?, anno = ?, genere = ?, piattaforma_1 = ?, piattaforma_2 = ? WHERE titolo = '{film_title}'", update_data)
-            db_conn.commit()
 
 
         else:
@@ -183,10 +182,17 @@ def sql_to_json(result : List[Tuple], columns : List)->SearchResponse:
         cont = 0
         #Itero sui nomi degli attributi in modo da assegnare al corretto attributo il suo valore
         for col,value in zip(columns, row):
-            item = {
-                "property_name" : str(col),
-                "property_value" :  str(value)
-            }        
+            if str(col) == "titolo" or str(col) == "regista":
+                item = {
+                    "property_name" : "name",
+                    "property_value" :  str(value)
+                }        
+            else:
+                item = {
+                    "property_name" : str(col),
+                    "property_value" :  str(value)
+                }        
+
             elem["properties"].append(item)
         ret.append(elem)
 

@@ -3,9 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>text_to_sql</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: darkgray;
+            padding: 20px;
+        }
+        .container-header {
+            background-color: #70D1F4;
+            color: balck;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            border: solid 2px white;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container-center {
+            background-color: #A3D977;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 5px;
+            border: solid 2px white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: fit-content;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+
+    </style>
 </head>
 <body>
-    
+    <header>
+        {% if data.errore %}
+        <p style="color:red;">Errore: {{ data.errore }}</p>
+        {% endif %}
+  
+        <div class="container-header">
+            <h1>Contenuto del database</h1>
+        </div>
+    </header>
+    <!-- Tabella generata dinamicamente con Jinja2 -->
+    <div class ="container-center">
+        <table>
+            <tr>
+                <th>Titolo</th>
+                <th>Regista</th>
+                <th>Eta autore</th>
+                <th>Anno</th>
+                <th>Genere</th>
+                <th>Piattaforma_1</th>
+                <th>Piattaforma_2</th>
+            </tr>
+            {% for item in data %}
+            <tr>
+                <td>{{ item[0] }}</td>
+                <td>{{ item[1] }}</td>
+                <td>{{ item[2] }}</td>
+                <td>{{ item[3] }}</td>
+                <td>{{ item[4] }}</td>
+                <td>{{ item[5] }}</td>
+                <td>{{ item[6] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>    
 </body>
 </html>
