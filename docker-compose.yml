@@ -1,0 +1,43 @@
+version: "3.9"
+services:
+  database:
+    image: mariadb:latest
+    container_name: mariadb_service
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: text_to_sql_DB
+      MYSQL_USER: stefano
+      MYSQL_PASSWORD: pwd
+    volumes:
+      - ./mariadb_data:/var/lib/mysql
+      - ./mariadb_data:/docker-entrypoint-initdb.d
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    container_name: backend_service
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./backend:/app
+    environment:
+      - DB_CONFIG=your_database_config_here
+    depends_on:
+      - database
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./frontend:/app
+    environment:
+      - API_BASE_URL=http://backend:8003
+    depends_on:
+      - backend

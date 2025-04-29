@@ -9,7 +9,7 @@
             "server": "localhost",
             "port": 3307,
             "driver": "MariaDB",
-            "name": "mariasb_esonero",
+            "name": "mariadb_esonero",
             "database": "text_to_sql_DB",
             "username": "stefano"
         }

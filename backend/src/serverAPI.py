@@ -1,7 +1,7 @@
 from config.paths import DB_CONFIG
 from .utils.parse_data import *
 
-from fastapi import FastAPI, HTTPException, requests
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import mariadb
@@ -23,6 +23,10 @@ class SelectResponse(BaseModel):
 #Imposto il formato del risultato della richiesta GET "/search"
 class SearchResponse(BaseModel):
     result : List[SelectResponse]
+
+#Imposto il formato del payload da ricevere in input nell'endpoint /add
+class AddPayload(BaseModel):
+    data_line : str
 
 @app.get("/")
 def root()->List[List]:
@@ -84,42 +88,37 @@ def search(question : str)->List:
 
         query = translate_to_query(question)
         if query =="NON RICONOSCIUTA!":
-            raise HTTPException(status_code=400, detail="Non è possibile elaborare questa richiesta!" )
+            raise HTTPException(status_code=422, detail="Non è possibile elaborare questa richiesta!" )
         else:
             db_cursor.execute(query)
             result = db_cursor.fetchall()
 
-            print("Risultato della query: ",result)
-            ret = sql_to_json(result, read_tables_headers(db_conn, "movies"))
+            if "regista" in query:
+                item_type = "director"
+            else:
+                item_type = "film"
+            ret = sql_to_json(result, read_tables_headers(db_conn, "movies"), item_type)
             ret = SearchResponse(
                 result=ret
                 )
     except mariadb.Error as e:
         raise HTTPException(status_code=500, detail=f"Errore durante l'operazione sul database: {e}")
-    # except Exception as e:
-    #     raise HTTPException(status_code=400, detail=f"Errore generico: {e}")
     finally:                
         db_cursor.close()
         db_conn.close()
     return ret.result
 
 @app.post("/add")
-def add(data_line : str)-> Dict[str,str]:
-    ret = {"status" : "ok"}
-    # data_line = parse_question(data_line)
+def add(data_line : AddPayload)-> Dict[str,str]:
+    data_line = data_line.data_line
     db_conn = mariadb.connect(**DB_CONFIG)
     try:
-        db_cursor = db_conn.cursor()
         add_to_database(db_conn, data_line)
-
+        return {"status" : "ok"}
     except ValueError as e:
-        ret = {"status" : "422"}
         raise HTTPException(status_code=422, detail=f"Errore, linea di dati non valida")
     except mariadb.Error as e:
-        ret = {"status" : "500"}
         raise HTTPException(status_code=500, detail=f"Errore durante l'operazione sul database: {e}")
     finally:
-        db_cursor.close()
         db_conn.close()
-        return ret
     

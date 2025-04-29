@@ -70,7 +70,7 @@ def translate_to_query(question:str)->str:
             return f"SELECT * FROM movies WHERE eta_autore >= {eta}"  
         
     elif question.startswith("Quali registi hanno fatto più di un film"):
-        return "SELECT regista FROM movies WHERE IN (SELECT regista FROM movies GROUP BY regista HAVING count(*) > 1)"
+        return "SELECT regista FROM movies WHERE regista IN (SELECT regista FROM movies GROUP BY regista HAVING count(*) > 1)"
     
     else:
         return "NON RICONOSCIUTA!"
@@ -107,10 +107,15 @@ def add_to_database(db_conn : mariadb.Connection, data_line:str)->None:
     
     db_cursor : mariadb.Cursor= db_conn.cursor()
     try:
+        if data_line.count(",") != 6:
+            raise ValueError("La riga fornita non contiene esattamente 7 campi separati da virgola")
+
         parsed = data_line.strip().split(",")
 
         if len(parsed) != 7:
             raise ValueError("La riga fornita non contiene esattamente 7 campi separati da virgola")
+
+        print("SUPERATI GLI ERRORI")
         cont = 0
         #Gestisco le occorrenze di apostrofi non desiderati nelle query da effettuare
         for elem in parsed:
@@ -147,7 +152,6 @@ def add_to_database(db_conn : mariadb.Connection, data_line:str)->None:
                 db_cursor.execute(f"SELECT count(*) FROM movies WHERE regista = '{query_result[1]}'")
                 num_film = db_cursor.fetchone()[0]
                 if num_film > 1:
-                    print("Inserisco:")
                     insert_data = (None, query_result[1], query_result[2], query_result[3], query_result[4], query_result[5], query_result[6])
                     db_cursor.execute("INSERT INTO movies (titolo, regista, eta_autore, anno, genere, piattaforma_1, piattaforma_2) VALUES (?,?,?,?,?,?,?)", insert_data)
                     db_conn.commit()
@@ -157,26 +161,25 @@ def add_to_database(db_conn : mariadb.Connection, data_line:str)->None:
 
         else:
             insert_data = (film_title, director_name, director_age, film_year, film_genr, platform_1, platform_2)
-            print("STO INSERENDO")
             db_cursor.execute("INSERT INTO movies(titolo, regista, eta_autore, anno, genere, piattaforma_1, piattaforma_2) VALUES (?,?,?,?,?,?,?)", insert_data)
             db_conn.commit()
 
     except ValueError as e:
         print(f"Errore, dati inseriti non validi: {e}")
+        raise
     except mariadb.Error as e:
         print(f"Errore durante un'operazione sul database: {e}")
-    except Exception as e:
-        print(f"Errore generico: {e}")
+        raise
     finally:
         db_cursor.close()
     return
 
-def sql_to_json(result : List[Tuple], columns : List)->SearchResponse:
+def sql_to_json(result : List[Tuple], columns : List, item_type : str)->SearchResponse:
     ret = []
     #Itero sulle tuple risultanti dalla query SQL e creo un elemento film per ognuna
     for row in result:
         elem = {
-            "item_type" : "film",
+            "item_type" : item_type,
             "properties" : []
         }
         cont = 0
