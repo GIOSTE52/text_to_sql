@@ -4,9 +4,9 @@ from fastapi.responses import Response
 import requests
 
 app = FastAPI(title = "text_to_sql Server HTML")
-templates = Jinja2Templates(directory= "frontend/templates")
+templates = Jinja2Templates(directory= "templates")
 
-API_BASE_URL = "http://localhost:8003"
+API_BASE_URL = "http://backend:8003"
 
 @app.get("/")
 def root(request : Request):

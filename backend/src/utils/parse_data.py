@@ -1,4 +1,4 @@
-from config.paths import DATA_FILE, QUESTIONS_FILE, DB_CONFIG
+from src.config.paths import DATA_FILE, QUESTIONS_FILE, DB_CONFIG
 
 from typing import Dict, List, Tuple
 from pydantic import BaseModel

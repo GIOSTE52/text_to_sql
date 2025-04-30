@@ -7,18 +7,18 @@ services:
     ports:
       - "3307:3306"
     environment:
-      MARIADB_ROOT_PASSWORD: rootpassword
-      MARIADB_DATABASE: text_to_sql_DB
-      MARIADB_USER: root
-      # MYSQL_PASSWORD: pwd
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: text_to_sql_DB
+      MYSQL_USER: stefano
+      MYSQL_PASSWORD: pwd
     volumes:
       - ./mariadb_data:/var/lib/mysql
       - ./mariadb_init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p", "rootpassword"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+    # healthcheck:
+    #   test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p", "rootpassword"]
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 10
   backend:
     build:
       context: ./backend
@@ -30,8 +30,10 @@ services:
     volumes:
       - ./backend:/backend
     depends_on:
-      database:
-        condition: service_healthy
+      - database
+    # depends_on:
+    #   database:
+    #     condition: service_healthy
 
   frontend:
     build:

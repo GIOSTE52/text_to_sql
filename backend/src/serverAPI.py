@@ -1,5 +1,5 @@
-from .config.paths import DB_CONFIG
-from .utils.parse_data import *
+from src.config.paths import DB_CONFIG, DATA_FILE
+from src.utils.parse_data import *
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
