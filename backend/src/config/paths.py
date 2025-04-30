@@ -12,7 +12,7 @@ TEMPLATES_DIR = ROOT_DIR/"frontend"/"templates"
 MODELS_DIR = ROOT_DIR/"models"
 
 # Percorsi ai dati riguardo il databasepa
-DATA_DIR = ROOT_DIR/"mariadb_init"
+DATA_DIR = ROOT_DIR/"data"
 INIT_SQL_DIR = ROOT_DIR/"mariadb_init"
 
 DATA_FILE = DATA_DIR/"data.tsv"

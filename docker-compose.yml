@@ -1,18 +1,24 @@
 version: "3.9"
 services:
   database:
-    image: mariadb:latest
-    container_name: mariadb_service
+    image: mariadb
+    restart: always
+    container_name: database_service
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: text_to_sql_DB
-      MYSQL_USER: stefano
-      MYSQL_PASSWORD: pwd
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: text_to_sql_DB
+      MARIADB_USER: root
+      # MYSQL_PASSWORD: pwd
     volumes:
       - ./mariadb_data:/var/lib/mysql
-      - ./mariadb_data:/docker-entrypoint-initdb.d
+      - ./mariadb_init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p", "rootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
   backend:
     build:
       context: ./backend
@@ -22,11 +28,10 @@ services:
     ports:
       - "8003:8003"
     volumes:
-      - ./backend:/app
-    environment:
-      - DB_CONFIG=your_database_config_here
+      - ./backend:/backend
     depends_on:
-      - database
+      database:
+        condition: service_healthy
 
   frontend:
     build:
@@ -36,7 +41,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./frontend:/app
+      - ./frontend:/frontend
     environment:
       - API_BASE_URL=http://backend:8003
     depends_on:

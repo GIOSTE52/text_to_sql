@@ -1,4 +1,4 @@
-from config.paths import DB_CONFIG
+from .config.paths import DB_CONFIG
 from .utils.parse_data import *
 
 from fastapi import FastAPI, HTTPException

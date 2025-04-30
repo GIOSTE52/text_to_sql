@@ -113,7 +113,7 @@ def add_to_database(db_conn : mariadb.Connection, data_line:str)->None:
         parsed = data_line.strip().split(",")
 
         if len(parsed) != 7:
-            raise ValueError("La riga fornita non contiene esattamente 7 campi separati da virgola")
+            raise ValueError("La riga fornita non contiene esattamente 7 campi")
 
         print("SUPERATI GLI ERRORI")
         cont = 0
