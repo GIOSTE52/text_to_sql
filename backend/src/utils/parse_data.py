@@ -115,7 +115,6 @@ def add_to_database(db_conn : mariadb.Connection, data_line:str)->None:
         if len(parsed) != 7:
             raise ValueError("La riga fornita non contiene esattamente 7 campi")
 
-        print("SUPERATI GLI ERRORI")
         cont = 0
         #Gestisco le occorrenze di apostrofi non desiderati nelle query da effettuare
         for elem in parsed:

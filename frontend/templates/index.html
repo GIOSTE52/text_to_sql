@@ -41,21 +41,61 @@
         th {
             background-color: #f2f2f2;
         }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s ease;
+        }
 
+        button:hover {
+            background-color: #458ba0;
+        }
+        .container-page {
+            background-color: #F5F5F5;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            border: solid 2px #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <header>
-        {% if data.errore %}
+        {% if data and data.errore %}
         <p style="color:red;">Errore: {{ data.errore }}</p>
+        {% endif %}
+        {% if schema and schema.errore %}
+        <p style="color:red;">Errore: {{ schema.errore }}</p>
+        {% endif %}
+        {% if result and result.errore %}
+        <p style="color:red;">Errore: {{ result.errore }}</p>
+        {% endif %}
+        {% if status and status.errore %}
+        <p style="color:red;">Errore: {{ status.errore }}</p>
         {% endif %}
   
         <div class="container-header">
             <h1>Contenuto del database</h1>
         </div>
     </header>
+    <div class="container-page">
+        <h2>Benvenuto nel tuo database di film!</h2>
+        <p>Qui puoi aggiungere, cercare e visualizzare i tuoi film preferiti.</p>
+        <a href="/">Recupera Tabella dei film</a>
+    </div>
     <!-- Tabella generata dinamicamente con Jinja2 -->
     <div class ="container-center">
+        <br>
         <table>
             <tr>
                 <th>Titolo</th>
@@ -77,7 +117,33 @@
                 <td>{{ item[6] }}</td>
             </tr>
             {% endfor %}
+            {% for item in result %}
+            <tr>
+                <td>{{ item.properties[0].property_value }}</td>
+                <td>{{ item.properties[1].property_value }}</td>
+                <td>{{ item.properties[2].property_value }}</td>
+                <td>{{ item.properties[3].property_value }}</td>
+                <td>{{ item.properties[4].property_value }}</td>
+                <td>{{ item.properties[5].property_value }}</td>
+                <td>{{ item.properties[6].property_value }}</td>
+            </tr>
+            {% endfor %}
         </table>
     </div>    
+    <div class="container-center">
+        <form action="/search" method="get" enctype="multipart/form-data">
+            <input type="text" name="query" placeholder="Search..." required>
+            <button type="submit">Search</button>
+        </form>
+        <br>
+        <form action="/schema_summary" method="get" enctype="multipart/form-data">
+            <button type="submit" >Schema Summary</button>
+        </form>
+        <br>
+        <form id="add-form" action="/add" method="post">
+            <input id="data-line" type="text" name="data_line" placeholder="Add new movie..." required>
+            <button type="submit">Add</button>
+        </form>
+    </div>
 </body>
 </html>

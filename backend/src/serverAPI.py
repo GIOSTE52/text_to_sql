@@ -3,7 +3,7 @@ from src.utils.parse_data import *
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict, Optional
+from typing import List, Dict
 import mariadb
     
 app = FastAPI(title="text_to_sql Server REST")
@@ -41,10 +41,10 @@ def root()->List[List]:
 
         #Stampo l'headers e i valori presenti nella tabella
         table_value = read_tables_values(db_conn, "movies")
-        headers = read_tables_headers(db_conn, "movies")
-        print("TABLE: movies")
-        print("Header:",headers)
-        print("Table_value:",table_value, sep="\n")
+        # headers = read_tables_headers(db_conn, "movies")
+        # print("TABLE: movies")
+        # print("Header:",headers)
+        # print("Table_value:",table_value, sep="\n")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Errore, sintassi non valida: {e}")
     except mariadb.Error as e:
@@ -73,8 +73,6 @@ def get_schema_summary()->List[TableSchema]:
             })
     except mariadb.Error as e:
         raise HTTPException(status_code=500, detail=f"Errore durante l'operazione sul database: {e}")
-    # except Exception as e:
-    #     raise HTTPException(status_code=400, detail=f"Errore generico: {e}")
     finally:
         db_cursor.close()
         db_conn.close()
@@ -116,7 +114,7 @@ def add(data_line : AddPayload)-> Dict[str,str]:
         add_to_database(db_conn, data_line)
         return {"status" : "ok"}
     except ValueError as e:
-        raise HTTPException(status_code=422, detail=f"Errore, linea di dati non valida")
+        raise HTTPException(status_code=422, detail=f"Errore, linea di dati non valida: {e}")
     except mariadb.Error as e:
         raise HTTPException(status_code=500, detail=f"Errore durante l'operazione sul database: {e}")
     finally:
