@@ -54,6 +54,10 @@ def root()->List[List]:
     
     return table_value
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
 @app.get("/schema_summary")
 def get_schema_summary()->List[TableSchema]:
     try:
@@ -112,11 +116,14 @@ def add(data_line : AddPayload)-> Dict[str,str]:
     db_conn = mariadb.connect(**DB_CONFIG)
     try:
         add_to_database(db_conn, data_line)
-        return {"status" : "ok"}
+        ret = {"status" : "ok"}
+        # return {"status" : "ok"}
     except ValueError as e:
+        ret = {"status" : f"Errore, dati non validi: {e}"}
         raise HTTPException(status_code=422, detail=f"Errore, linea di dati non valida: {e}")
     except mariadb.Error as e:
+        ret = {"status" : f"Errore durante un operazione sul database: {e}"}
         raise HTTPException(status_code=500, detail=f"Errore durante l'operazione sul database: {e}")
     finally:
         db_conn.close()
-    
+    return ret

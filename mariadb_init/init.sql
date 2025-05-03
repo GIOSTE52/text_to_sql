@@ -16,15 +16,14 @@ USE text_to_sql_DB;
 --     piattaforma_2 VARCHAR(200),
 --     CONSTRAINT fk_film FOREIGN KEY(regista) REFERENCES registi(id_regista) ON DELETE CASCADE ON UPDATE RESTRICT
 -- );
---id_movie INT AUTO_INCREMENT PRIMARY KEY,
 
 CREATE TABLE movies(
+    id_movie INT AUTO_INCREMENT PRIMARY KEY,
     titolo VARCHAR(100) UNIQUE,
     regista VARCHAR(200) NOT NULL,
     eta_autore INT NOT NULL,
     anno INT NOT NULL check(anno>0),
     genere VARCHAR(100) NOT NULL,
     piattaforma_1 VARCHAR(200),
-    piattaforma_2 VARCHAR(200),
-    PRIMARY KEY (regista, anno)
+    piattaforma_2 VARCHAR(200)
 );

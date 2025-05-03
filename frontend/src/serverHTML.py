@@ -48,7 +48,7 @@ def get_search(request : Request, query : str):
 @app.post("/add")
 def post_add(request : Request, data_line : str = Form(...)):
     if not data_line:
-        status = {"errore" : f"Errore durante la chiamata POST \"/add\": {e}"}
+        status = {"status" : f"Errore durante la chiamata POST \"/add\": {e}"}
         raise HTTPException(status_code=422, detail=f"Errore dei tipi di dati: {e}") 
     try:
         response = requests.post(f"{API_BASE_URL}/add", json = {"data_line" : data_line})
@@ -58,7 +58,7 @@ def post_add(request : Request, data_line : str = Form(...)):
     except ValueError as e:
         raise HTTPException(status_code=422, detail=f"Errore dei tipi di dati: {e}") 
     except requests.exceptions.RequestException as e:
-        status = {"errore" : f"Errore durante la chiamata POST \"/add\": {e}"}
+        status = {"status" : f"Errore durante la chiamata POST \"/add\": {e}"}
         raise HTTPException(status_code=500, detail=f"Errore nella richiesta al server: {e}")
     return templates.TemplateResponse("index.html", {"request":request, "status" : status})
 
