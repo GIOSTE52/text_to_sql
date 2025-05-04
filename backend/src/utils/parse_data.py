@@ -18,7 +18,6 @@ class SelectResponse(BaseModel):
 class SearchResponse(BaseModel):
     result : List[SelectResponse]
 
-question_to_query : Dict[str, str] = {}
 
 # Funzione che restituisce l'headers del file .tsv come lista di stringhe
 def read_headers_file(file_path:str)->List[str]:
@@ -32,7 +31,6 @@ def read_headers_file(file_path:str)->List[str]:
     return headers
     
 # Funzione che parsa una domanda dal file questions.txt e la traduce in una lista di stringhe senza punteggiatura
-# e popola il dizionario question_to_parsed con esse
 def parse_question(question:str)->List[str]:
     parsed : List[str] = question.strip().strip(string.punctuation).split()
     #Print di controllo
@@ -151,7 +149,7 @@ def add_to_database(db_conn : mariadb.Connection, data_line:str)->None:
                 db_cursor.execute(f"SELECT count(*) FROM movies WHERE regista = '{query_result[1]}'")
                 num_film = db_cursor.fetchone()[0]
                 if num_film > 1:
-                    insert_data = (None, query_result[1], query_result[2], query_result[3], query_result[4], query_result[5], query_result[6])
+                    insert_data = (None, query_result[1], query_result[2], query_result[3], query_result[4], None, None)
                     db_cursor.execute("INSERT INTO movies (titolo, regista, eta_autore, anno, genere, piattaforma_1, piattaforma_2) VALUES (?,?,?,?,?,?,?)", insert_data)
                     db_conn.commit()
 
@@ -200,36 +198,3 @@ def sql_to_json(result : List[Tuple], columns : List, item_type : str)->SearchRe
 
     return ret
 
-# if __name__=="__main__":
-
-    # headers_file = read_headers_file(DATA_FILE)
-    
-    #Popolo il dizionario con le domande e le rispettive query (non ce n'è bisogno)
-    # with open(QUESTIONS_FILE, "r") as fd:
-    #     for line in fd:
-    #         query = translate_to_query(line)
-    #         question_to_query[line] = query
-
-    # # Stampo il dizionario che traduce in una lista di stringhe la stringa letta dal file questions.txt
-    # print(question_to_query)
-
-    # #Stampo gli headers e i valori delle tabelle del database
-    # db_conn = mariadb.connect(**DB_CONFIG)
-    # table_value = read_tables_values(db_conn, "movies")
-    # headers = read_tables_headers(db_conn, "movies")
-    # print("TABLE: movies")
-    # print("Header:",headers)
-    # print("Table_value:",table_value)
-    # db_conn.close()
-
-
-    # #Aggiungo al database i dati inseriti da un file formato csv
-    # with open(DATA_FILE, "r") as fd:
-    #     # Da impostare il delimiter="," alla fine del progetto
-    #     # reader = csv.reader(fd, delimiter=",")
-    #     reader = csv.reader(fd, delimiter="\t")
-
-    #     next(reader)
-    #     for line in reader:
-    #         print(line)
-    #         add_to_database(line)
