@@ -16,5 +16,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8003
 
-
-CMD ["uvicorn", "src.serverAPI:app", "--host", "0.0.0.0", "--port", "8003", "--reload"]
+# CMD ["uvicorn", "src.serverAPI:app", "--host", "0.0.0.0", "--port", "8003", "--reload"]
+CMD ["sh","-c", "python -m src.initialize_db && uvicorn src.serverAPI:app --host 0.0.0.0 --port 8003 --reload"]

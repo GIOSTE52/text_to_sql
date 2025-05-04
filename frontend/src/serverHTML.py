@@ -19,7 +19,7 @@ def root(request : Request):
         data = response.json()
     except requests.exceptions.RequestException as e:
         data = {"errore" : f"Errore durante la chiamata GET \"/\": {e}"}
-        raise HTTPException(status_code=500, detail=f"Errore nella richiesta al server: {e}")
+        # raise HTTPException(status_code=500, detail=f"Errore nella richiesta al server: {e}")
     return templates.TemplateResponse("index.html", {"request":request, "data" : data})
 
 
@@ -31,7 +31,7 @@ def get_schema_summary(request : Request):
         schema = response.json() 
     except requests.exceptions.RequestException as e:
         schema = {"errore" : f"Errore durante la chiamata GET \"/schema_summary\": {e}"}
-        raise HTTPException(status_code=500, detail=f"Errore nella richiesta al server: {e}")
+        # raise HTTPException(status_code=500, detail=f"Errore nella richiesta al server: {e}")
     return templates.TemplateResponse("index.html", {"request":request, "schema": schema})
 
 @app.get("/search")
@@ -41,24 +41,24 @@ def get_search(request : Request, query : str):
         response.raise_for_status()
         result = response.json()
     except requests.exceptions.RequestException as e:
-        result = {"errore" : f"Errore durante la chiamata GET \"/schema_summary\": {e}"}
-        raise HTTPException(status_code=500, detail=f"Errore nella richiesta al server: {e}")
+        result = {"errore" : f"Errore durante la chiamata GET \"/search\": {e}"}
+        # raise HTTPException(status_code=500, detail=f"Errore nella richiesta al server: {e}")
     return templates.TemplateResponse("index.html", {"request" : request, "result" : result})
 
 @app.post("/add")
 def post_add(request : Request, data_line : str = Form(...)):
     if not data_line:
         status = {"status" : f"Errore durante la chiamata POST \"/add\": {e}"}
-        raise HTTPException(status_code=422, detail=f"Errore dei tipi di dati: {e}") 
+        # raise HTTPException(status_code=422, detail=f"Errore dei tipi di dati: {e}") 
     try:
         response = requests.post(f"{API_BASE_URL}/add", json = {"data_line" : data_line})
         response.raise_for_status()
         status = response.json()
-        
     except ValueError as e:
-        raise HTTPException(status_code=422, detail=f"Errore dei tipi di dati: {e}") 
+        status = {"errore" : f"Errore dati non validi: {e}"}
+        # raise HTTPException(status_code=422, detail=f"Errore dei tipi di dati: {e}") 
     except requests.exceptions.RequestException as e:
-        status = {"status" : f"Errore durante la chiamata POST \"/add\": {e}"}
-        raise HTTPException(status_code=500, detail=f"Errore nella richiesta al server: {e}")
+        status = {"errore" : f"Errore durante la chiamata POST \"/add\": {e}"}
+        # raise HTTPException(status_code=500, detail=f"Errore nella richiesta al server: {e}")
     return templates.TemplateResponse("index.html", {"request":request, "status" : status})
 

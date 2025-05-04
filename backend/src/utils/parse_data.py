@@ -53,13 +53,13 @@ def translate_to_query(question:str)->str:
         anno = question.replace("Elenca i film del ", "")
         if anno.isdigit():
             anno = int(anno)
-            return f"SELECT * FROM movies WHERE anno = {anno}"
+            return f"SELECT titolo, regista, eta_autore, anno, genere, piattaforma_1, piattaforma_2 FROM movies WHERE anno = {anno}"
         
     elif question.startswith("Quali sono i registi presenti su Netflix"):
         return "SELECT regista FROM movies WHERE piattaforma_1 = 'Netflix' OR piattaforma_2='Netflix'"
     
     elif question.startswith("Elenca tutti i film di fantascienza"):
-        return "SELECT * FROM movies WHERE genere='Fantascienza'"
+        return "SELECT titolo, regista, eta_autore, anno, genere, piattaforma_1, piattaforma_2 FROM movies WHERE genere='Fantascienza'"
     
     elif question.startswith("Quali film sono stati fatti da un regista di almeno ") and question.endswith(" anni"):
         inizio = "Quali film sono stati fatti da un regista di almeno "
@@ -67,7 +67,7 @@ def translate_to_query(question:str)->str:
         eta = question[len(inizio):-len(fine)]
         if eta.isdigit():
             eta = int(eta)
-            return f"SELECT * FROM movies WHERE eta_autore >= {eta}"  
+            return f"SELECT titolo, regista, eta_autore, anno, genere, piattaforma_1, piattaforma_2 FROM movies WHERE eta_autore >= {eta}"  
         
     elif question.startswith("Quali registi hanno fatto più di un film"):
         return "SELECT regista FROM movies WHERE regista IN (SELECT regista FROM movies GROUP BY regista HAVING count(*) > 1)"
@@ -80,7 +80,7 @@ def read_tables_values(db_conn:mariadb.Connection, table_name:str)->List[List[st
     result : List[List[str]] = []
     db_cursor = db_conn.cursor()
 
-    db_cursor.execute(f"SELECT * FROM {table_name}")
+    db_cursor.execute(f"SELECT titolo, regista, eta_autore, anno, genere, piattaforma_1, piattaforma_2 FROM {table_name}")
     for row in db_cursor.fetchall():
         result.append(row)
 
@@ -133,7 +133,7 @@ def add_to_database(db_conn : mariadb.Connection, data_line:str)->None:
         #Gestisco i casi in cui il regista o il titolo vengono modificati all'inserimento di un film, allora aggiorno tutte le occorrenze
         #ed il caso in cui viene aggiunto un film già esistente con diverso regista, per cui devo modificare la vecchia occorrenza eliminando il titolo e lasciando
         #il vechio regista, ma al contempo creare una nuova tupla con il nuovo regista e il titolo del film
-        db_cursor.execute(f"SELECT * FROM movies WHERE titolo='{film_title}'")
+        db_cursor.execute(f"SELECT titolo, regista, eta_autore, anno, genere, piattaforma_1, piattaforma_2 FROM movies WHERE titolo='{film_title}'")
         query_result = db_cursor.fetchone()
 
         #DA TENERE A MENTE:
@@ -183,7 +183,7 @@ def sql_to_json(result : List[Tuple], columns : List, item_type : str)->SearchRe
         }
         cont = 0
         #Itero sui nomi degli attributi in modo da assegnare al corretto attributo il suo valore
-        for col,value in zip(columns, row):
+        for col,value in zip(columns[1:], row):
             if str(col) == "titolo" or str(col) == "regista":
                 item = {
                     "property_name" : "name",

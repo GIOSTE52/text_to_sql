@@ -26,14 +26,12 @@ services:
       - "8003:8003"
     volumes:
       - ./backend:/backend
-    # depends_on:
-    #   - database
     depends_on:
       database:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://backend:8003/health"]
-      interval: 60s
+      interval: 10s
       retries: 3
 
   frontend:

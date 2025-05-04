@@ -95,14 +95,20 @@ def search(question : str)->List:
             db_cursor.execute(query)
             result = db_cursor.fetchall()
 
-            if "regista" in query:
+            #ERRORE
+            # if "regista" in query:
+            #     item_type = "director"
+            # else:
+            #     item_type = "film"
+            if len(result[0]) == 1:
                 item_type = "director"
             else:
                 item_type = "film"
+
             ret = sql_to_json(result, read_tables_headers(db_conn, "movies"), item_type)
             ret = SearchResponse(
                 result=ret
-                )
+            )
     except mariadb.Error as e:
         raise HTTPException(status_code=500, detail=f"Errore durante l'operazione sul database: {e}")
     finally:                
@@ -127,3 +133,5 @@ def add(data_line : AddPayload)-> Dict[str,str]:
     finally:
         db_conn.close()
     return ret
+
+
