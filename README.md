@@ -2,17 +2,17 @@
 
 **Esonero LabIngInf** - Un progetto per la conversione di testo in query SQL.
 
-## 📋 Descrizione
+## Descrizione
 
 Questo progetto consente di convertire testo naturale in query SQL, facilitando l'interazione con database attraverso il linguaggio naturale.
 
-## 🛠️ Tecnologie Utilizzate
+## Tecnologie Utilizzate
 
 - **Python** (71.5%) - Logica principale e backend
 - **HTML** (25.8%) - Interfaccia web
 - **Dockerfile** (2.7%) - Containerizzazione
 
-## 🚀 Avvio
+## Avvio
 
 ### Requisiti
 - Python 3.x
@@ -43,11 +43,11 @@ docker build -t text_to_sql .
 docker run -p 5000:8000 text_to_sql
 ```
 
-## 📝 Utilizzo
+## Utilizzo
 
 L'applicazione fornisce un'interfaccia web dove puoi inserire testo naturale e ottenere la corrispondente query SQL.
 
-## 📂 Struttura del Progetto
+## Struttura del Progetto
 
 ```
 text_to_sql/
@@ -58,13 +58,13 @@ text_to_sql/
 └── templates/            # File HTML
 ```
 
-## ✨ Funzionalità
+## Funzionalità
 
 - Conversione da linguaggio naturale a SQL
 - Interfaccia web intuitiva
 - Supporto per query SQL complesse
 
-## 📧 Contatti
+## Contatti
 
 Per domande o suggerimenti, apri un'issue nel repository.
 
